@@ -21,6 +21,8 @@ public class GameComponent extends Canvas implements Runnable {
     private int[] pixels;
     private BufferedImage img;
 
+    private int[] origCircle;
+
     public GameComponent(){
 	Dimension size = new Dimension(WIDTH, HEIGHT);
 	setSize(size);
@@ -148,27 +150,36 @@ public class GameComponent extends Canvas implements Runnable {
 
     private void drawCircle(int xPos, int yPos, PVector direction, int diametr, int color){
 	int radius = diametr / 2;
-	int[] circle = new int[diametr * diametr];
+        if (origCircle == null) {
+            origCircle = new int[diametr * diametr];
 
-	for (int y = 0; y < radius; y++){
-	    int x = (int)Math.round(Math.sqrt(radius * radius - y * y));
-	    for (int col = 0; col < x; col++){
-		int cY = y + radius;
-		int cX = col + radius;
-		circle[cX + cY * diametr] = color;
+            for (int y = 0; y < radius; y++){
+                int x = (int)Math.round(Math.sqrt(radius * radius - y * y));
+                for (int col = 0; col < x; col++){
+                    int cY = y + radius;
+                    int cX = col + radius;
+                    origCircle[cX + cY * diametr] = color;
 
-		cX = col * -1 + radius;
-		circle[cX + cY * diametr] = color;
+                    cX = col * -1 + radius;
+                    origCircle[cX + cY * diametr] = color;
 
-		cY = y * -1 + radius;
-		cX = col + radius;
-		circle[cX + cY * diametr] = color;
+                    cY = y * -1 + radius;
+                    cX = col + radius;
+                    origCircle[cX + cY * diametr] = color;
 
-		cX = col * -1 + radius;
-		circle[cX + cY * diametr] = color;
-	    }
+                    cX = col * -1 + radius;
+                    origCircle[cX + cY * diametr] = color;
+                }
 
-	}
+            }
+        }
+
+        int[] circleWithLine = new int[diametr * diametr];
+        for (int i = 0; i < diametr * diametr; i++) {
+            circleWithLine[i] = origCircle[i];
+        }
+
+
 
 	// draw line
 	direction.mul(radius);
@@ -186,7 +197,7 @@ public class GameComponent extends Canvas implements Runnable {
 		y = radius + y;
 		int xCoord = x + radius;
 		int yCoord = (int)y * diametr;
-		circle[xCoord + yCoord] = 0xFF0000;
+		circleWithLine[xCoord + yCoord] = 0xFF0000;
 	    }
 	} else {
 	    for (int x = 0; x > direction.x; x--){
@@ -194,12 +205,12 @@ public class GameComponent extends Canvas implements Runnable {
 		y = radius + y;
 		int xCoord = x + radius;
 		int yCoord = (int)y * diametr;
-		circle[xCoord + yCoord] = 0xFF0000;
+		circleWithLine[xCoord + yCoord] = 0xFF0000;
 	    }
 	}
 
 
-	blitImagePixels(circle, xPos, yPos, diametr, color);
+	blitImagePixels(circleWithLine, xPos, yPos, diametr, color);
     }
 
 
