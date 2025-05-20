@@ -16,6 +16,8 @@ public class GameComponent extends Canvas implements Runnable {
     public static final int NUMBER_OF_BOIDS = 100;//1_000_000;
     public static final int BG_COLOR = 0x173f5f;
 
+    private static final boolean limitFPS = true;
+
     private int[] pixels;
     private BufferedImage img;
 
@@ -55,17 +57,24 @@ public class GameComponent extends Canvas implements Runnable {
 	    lastTime = now;
 	    secondsFromLastTick += processedTime / 1000000000.0;
 
-	    if (secondsFromLastTick >= secondsPerTick){
-		System.out.println("FPS: " + (int)(1 / secondsFromLastTick));
-		gameTick(boids, (float) secondsFromLastTick);
-		secondsFromLastTick = 0;
-	    } else {
-		try {
-		    Thread.sleep(1);
-		} catch (InterruptedException e){
-		    e.printStackTrace();
-		}
-	    }
+            if (limitFPS) {
+                if (secondsFromLastTick >= secondsPerTick){
+                    System.out.println("FPS: " + (int)(1 / secondsFromLastTick));
+                    gameTick(boids, (float) secondsFromLastTick);
+                    secondsFromLastTick = 0;
+                } else {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                System.out.println("FPS: " + (int)(1 / secondsFromLastTick));
+                gameTick(boids, (float) secondsFromLastTick);
+                secondsFromLastTick = 0;
+            }
+
 	}
     }
 
@@ -81,6 +90,10 @@ public class GameComponent extends Canvas implements Runnable {
 	for (int i = 0; i < NUMBER_OF_BOIDS; i++){
 	    Boid b = boids.get(i);
 	    b.updateAcc(boids);
+	}
+
+        for (int i = 0; i < NUMBER_OF_BOIDS; i++){
+	    Boid b = boids.get(i);
 	    b.move(WIDTH - 1, HEIGHT - 1, dt);
 	    drawBoid(b);
 	}
