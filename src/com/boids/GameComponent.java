@@ -147,8 +147,7 @@ public class GameComponent extends Canvas implements Runnable {
             boolean isFocused = false;
             // make the last one of different color
             if (i == NUMBER_OF_BOIDS - 1){
-                //drawing other color is not working for some reason
-                //color = Boid.FOCUSED_BOID_COLOR;
+                color = Boid.FOCUSED_BOID_COLOR;
                 isFocused = true;
             }
 
@@ -167,29 +166,26 @@ public class GameComponent extends Canvas implements Runnable {
 
     private void drawCircle(int xPos, int yPos, PVector direction, int diametr, int color){
         int radius = diametr / 2;
-        //TODO: this will work only if all boids are of the same color
-        if (origCircle == null) {
-            origCircle = new int[diametr * diametr];
+        //TODO: don't generate the same cirlce every time, create one per color and reuse it
+        origCircle = new int[diametr * diametr];
+        for (int y = 0; y < radius; y++){
+            int x = (int)Math.round(Math.sqrt(radius * radius - y * y));
+            for (int col = 0; col < x; col++){
+                int cY = y + radius;
+                int cX = col + radius;
+                origCircle[cX + cY * diametr] = color;
 
-            for (int y = 0; y < radius; y++){
-                int x = (int)Math.round(Math.sqrt(radius * radius - y * y));
-                for (int col = 0; col < x; col++){
-                    int cY = y + radius;
-                    int cX = col + radius;
-                    origCircle[cX + cY * diametr] = color;
+                cX = col * -1 + radius;
+                origCircle[cX + cY * diametr] = color;
 
-                    cX = col * -1 + radius;
-                    origCircle[cX + cY * diametr] = color;
+                cY = y * -1 + radius;
+                cX = col + radius;
+                origCircle[cX + cY * diametr] = color;
 
-                    cY = y * -1 + radius;
-                    cX = col + radius;
-                    origCircle[cX + cY * diametr] = color;
-
-                    cX = col * -1 + radius;
-                    origCircle[cX + cY * diametr] = color;
-                }
-
+                cX = col * -1 + radius;
+                origCircle[cX + cY * diametr] = color;
             }
+
         }
 
         int[] circleWithLine = new int[diametr * diametr];
