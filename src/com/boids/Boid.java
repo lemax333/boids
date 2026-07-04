@@ -21,7 +21,8 @@ public class Boid {
 
     private static final float FOV_ANGLE_COS = (float)Math.cos(Math.PI * 0.8);
 
-    public static final int NPC_BOID_COLOR = 0x3caea3;
+    //public static final int NPC_BOID_COLOR = 0x3caea3;
+    public static final int NPC_BOID_COLOR = 0xffffff;
     public static final int FOCUSED_BOID_COLOR = 0xed553b;
 
     public PVector pos;
