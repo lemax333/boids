@@ -13,11 +13,18 @@ public class GameComponent extends Canvas implements Runnable {
     public static final int WIDTH = 960;
     public static final int HEIGHT = 720;
 
+    public static final float METER_TO_PIXELS = 28.f;
+    public static final float WIDTH_METERS = WIDTH / METER_TO_PIXELS;
+    public static final float HEIGHT_METERS = HEIGHT / METER_TO_PIXELS;
+
+    public static final int BORDER = 100;
+    public static final int BORDER_COLOR = 0x173f5f;
+
     public static final int NUMBER_OF_BOIDS = 100;//1_000_000;
     //public static final int BG_COLOR = 0x173f5f;
     public static final int BG_COLOR = 0;
 
-    private static final boolean limitFPS = true;
+    private static final boolean limitFPS = false;
 
     private static final Random random = new Random();
 
@@ -52,7 +59,7 @@ public class GameComponent extends Canvas implements Runnable {
     public void run(){
         long lastTime = System.nanoTime();
         double secondsFromLastTick = 0;
-        double secondsPerTick = 1 / 60.0;
+        double secondsPerTick = 1;// / 60.0;
         int framesCount = 0;
 
         while(true){
@@ -84,6 +91,17 @@ public class GameComponent extends Canvas implements Runnable {
         }
     }
 
+    private void drawBorders() {
+        for (int i = 0; i < WIDTH; i++) {
+            pixels[(BORDER*WIDTH) + i] = BORDER_COLOR;
+            pixels[((HEIGHT - BORDER) * WIDTH) + i] = BORDER_COLOR;
+        }
+        for (int i = 0; i < HEIGHT; i++){
+            pixels[(i*WIDTH) + BORDER] = BORDER_COLOR;
+            pixels[(i*WIDTH) + WIDTH - BORDER] = BORDER_COLOR;
+        }
+    }
+
     private void gameTick(double dt){
         BufferStrategy bs = getBufferStrategy();
         if (bs == null){
@@ -92,6 +110,7 @@ public class GameComponent extends Canvas implements Runnable {
         }
 
         fillBackground(BG_COLOR);
+        drawBorders();
 
         for (int i = 0; i < NUMBER_OF_BOIDS; i++){
             Boid b = this.updatedBoids.get(i);
@@ -104,7 +123,9 @@ public class GameComponent extends Canvas implements Runnable {
             b.acc.x = b1.acc.x;
             b.acc.y = b1.acc.y;
 
-            b.updateAcc(currentBoids);
+            //b.updateAcc(currentBoids);
+            b.stayInsideBoundaries(BORDER / METER_TO_PIXELS, (WIDTH - BORDER) / METER_TO_PIXELS,
+                                   BORDER / METER_TO_PIXELS, (HEIGHT - BORDER) / METER_TO_PIXELS);
             b.move(WIDTH - 1, HEIGHT - 1, (float)dt);
             drawBoid(b);
         }
@@ -132,8 +153,8 @@ public class GameComponent extends Canvas implements Runnable {
         this.currentBoids = new ArrayList();
         this.updatedBoids = new ArrayList();
         for (int i = 0; i < NUMBER_OF_BOIDS; i++){
-            float x = r.nextInt(WIDTH);
-            float y = r.nextInt(HEIGHT);
+            float x = r.nextInt((int)WIDTH_METERS);
+            float y = r.nextInt((int)HEIGHT_METERS);
 
             boolean xPositiveDir = r.nextBoolean();
             boolean yPositiveDir = r.nextBoolean();
@@ -141,7 +162,7 @@ public class GameComponent extends Canvas implements Runnable {
             float deltaY = yPositiveDir ? r.nextFloat() : r.nextFloat() * -1;
             PVector velocity = new PVector(deltaX, deltaY);
             velocity.normalize();
-            velocity.mul(Boid.MIN_SPEED);
+            velocity.mul(Boid.MIN_SPEED_METERS);
 
             int color = Boid.NPC_BOID_COLOR;
             boolean isFocused = false;
@@ -151,8 +172,8 @@ public class GameComponent extends Canvas implements Runnable {
                 isFocused = true;
             }
 
-            currentBoids.add(new Boid(x, y, velocity.x, velocity.y, Boid.WIDTH, color, isFocused));
-            updatedBoids.add(new Boid(x, y, velocity.x, velocity.y, Boid.WIDTH, color, isFocused));
+            currentBoids.add(new Boid(x, y, velocity.x, velocity.y, color, isFocused));
+            updatedBoids.add(new Boid(x, y, velocity.x, velocity.y, color, isFocused));
         }
         System.out.println("Size: " + currentBoids.size());
     }
@@ -160,8 +181,8 @@ public class GameComponent extends Canvas implements Runnable {
     private void drawBoid(Boid b){
         PVector direction = PVectorUtil.copy(b.vel);
         direction.normalize();
-        drawCircle(Math.round(b.pos.x), Math.round(b.pos.y),
-                   direction, b.width, b.color);
+        drawCircle(Math.round(b.pos.x * METER_TO_PIXELS), Math.round(b.pos.y * METER_TO_PIXELS),
+                   direction, Math.round(b.size * METER_TO_PIXELS), b.color);
     }
 
     private void drawCircle(int xPos, int yPos, PVector direction, int diametr, int color){

@@ -3,6 +3,12 @@ package com.boids;
 import java.util.List;
 
 public class Boid {
+
+    public static final float SIZE_METERS = 1f;
+    public static final float MIN_SPEED_METERS = 1.0f;
+    public static final float MAX_SPEED_METERS = 5.5f;
+    public static final float MAX_ACC_METERS = 2.8f;
+
     public static final int WIDTH = 20;
     public static final float MAX_SPEED = 400f;
     public static final float MIN_SPEED = 200f;
@@ -28,42 +34,49 @@ public class Boid {
     public PVector pos;
     public PVector vel;
     public PVector acc;
-    public int width;
+    public float size;
     public int color;
     public boolean isFocused;
 
     public Boid(){
     }
 
-    public Boid(float x, float y, float velX, float velY, int width, int color, boolean isFocused){
+    public Boid(float x, float y, float velX, float velY, int color, boolean isFocused){
 	this.pos = new PVector(x, y);
 	this.vel = new PVector(velX, velY);
 	this.acc = new PVector();
 
-	this.width = width;
+	this.size = SIZE_METERS;
 	this.color = color;
 
 	this.isFocused = isFocused;
     }
 
     public void move(int boundaryX, int boundaryY, float dt){
-	acc.mul(MAX_FORCE);
+	acc.mul(MAX_ACC_METERS);
 	acc.mul(dt);
 
 	vel.add(acc);
-	vel.clamp(MIN_SPEED, MAX_SPEED);
+	//vel.clamp(MIN_SPEED, MAX_SPEED);
 
 	pos.add(PVectorUtil.mul(vel, dt));
 
 	acc.mul(0);
+    }
 
-	// stay inside screen
-	if (pos.x < 0) pos.x = boundaryX;
-	if (pos.x > boundaryX) pos.x = 0;
+    public void stayInsideBoundaries(float boundaryXMin, float boundaryXMax,
+                                     float boundaryYMin, float boundaryYMax) {
+        if (this.pos.x < boundaryXMin) {
+            acc.add(new PVector(1f, 0));
+        } else if (this.pos.x > boundaryXMax) {
+            acc.add(new PVector(-1f, 0));
+        }
 
-	if (pos.y < 0) pos.y = boundaryY;
-	if (pos.y > boundaryY) pos.y = 0;
-
+        if (this.pos.y < boundaryYMin) {
+            acc.add(new PVector(0, 1f));
+        } else if (this.pos.y > boundaryYMax) {
+            acc.add(new PVector(0, -1f));
+        }
     }
 
     public void updateAcc(List<Boid> boids){
