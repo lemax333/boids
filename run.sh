@@ -1,3 +1,2 @@
 #!/bin/bash
-pushd build > /dev/null
-java com.boids.Main
+java -cp build com.boids.Main
