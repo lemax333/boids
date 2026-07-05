@@ -1,0 +1,25 @@
+* TODO direction is acceleration, not velocity
+* TODO keep colors in palettes
+* DONE make boids stay inside screen
+** DONE draw border rectangle
+** DONE change direction if out of borders
+* TODO tests
+  - [X] 2 approaching each other along x axes
+  - [ ] 2 approaching each other along y axes
+  - [ ] 2 approaching each other in diagonal line
+  - [ ] 4 approaching each other
+* TODO take a real-life values for speed, acceleration, etc (take fish as an example)
+Taking Mackerel
+0.7m - 20px
+1m - 28px
+
+min speed = 1m/s, 28px/s
+max speed = 5.5m/s, 154px/s
+
+max acceleration = 4.5m/s 126px/s^2
+* TODO user meters instead of pixels
+* TODO allow pausing simulation
+* TODO debug drawing
+ - [ ] draw line to each boid that we're testing against
+* TODO updateAcc should also use dt
+* TODO parallel processing of each boid
