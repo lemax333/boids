@@ -10,21 +10,21 @@ import java.util.ArrayList;
 
 public class GameComponent extends Canvas implements Runnable {
 
-    public static final int WIDTH = 960;
-    public static final int HEIGHT = 720;
+    public static final int WIDTH = 1200;
+    public static final int HEIGHT = 970;
 
-    public static final float METER_TO_PIXELS = 28.f;
+    public static final float METER_TO_PIXELS = 14.f;
     public static final float WIDTH_METERS = WIDTH / METER_TO_PIXELS;
     public static final float HEIGHT_METERS = HEIGHT / METER_TO_PIXELS;
 
-    public static final int BORDER = 100;
+    public static final int BORDER = 50;
     public static final int BORDER_COLOR = 0x173f5f;
 
     public static final int NUMBER_OF_BOIDS = 100;//1_000_000;
     //public static final int BG_COLOR = 0x173f5f;
     public static final int BG_COLOR = 0;
 
-    private static final boolean limitFPS = false;
+    private static final boolean limitFPS = true;
 
     private static final Random random = new Random();
 
@@ -49,6 +49,7 @@ public class GameComponent extends Canvas implements Runnable {
         pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 
         initBoids();
+        //initTestBoids();
     }
 
     public void start(){
@@ -59,7 +60,7 @@ public class GameComponent extends Canvas implements Runnable {
     public void run(){
         long lastTime = System.nanoTime();
         double secondsFromLastTick = 0;
-        double secondsPerTick = 1;// / 60.0;
+        double secondsPerTick = 1 / 60.0;
         int framesCount = 0;
 
         while(true){
@@ -112,7 +113,7 @@ public class GameComponent extends Canvas implements Runnable {
         fillBackground(BG_COLOR);
         drawBorders();
 
-        for (int i = 0; i < NUMBER_OF_BOIDS; i++){
+        for (int i = 0; i < this.updatedBoids.size(); i++){
             Boid b = this.updatedBoids.get(i);
 
             Boid b1 = this.currentBoids.get(i);
@@ -123,9 +124,10 @@ public class GameComponent extends Canvas implements Runnable {
             b.acc.x = b1.acc.x;
             b.acc.y = b1.acc.y;
 
-            //b.updateAcc(currentBoids);
-            b.stayInsideBoundaries(BORDER / METER_TO_PIXELS, (WIDTH - BORDER) / METER_TO_PIXELS,
-                                   BORDER / METER_TO_PIXELS, (HEIGHT - BORDER) / METER_TO_PIXELS);
+            b.updateAcc(currentBoids,
+                        BORDER / METER_TO_PIXELS, (WIDTH - BORDER) / METER_TO_PIXELS,
+                        BORDER / METER_TO_PIXELS, (HEIGHT - BORDER) / METER_TO_PIXELS);
+
             b.move(WIDTH - 1, HEIGHT - 1, (float)dt);
             drawBoid(b);
         }
@@ -146,6 +148,20 @@ public class GameComponent extends Canvas implements Runnable {
         for (int i = 0; i < pixels.length; i++){
             pixels[i] = color;
         }
+    }
+
+    private void initTestBoids() {
+        this.currentBoids = new ArrayList();
+        this.updatedBoids = new ArrayList();
+        currentBoids.add(new Boid((BORDER + 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
+                                  Boid.MAX_SPEED_METERS, 0f, Boid.NPC_BOID_COLOR, false));
+        currentBoids.add(new Boid((WIDTH - BORDER - 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
+                                Boid.MAX_SPEED_METERS * -1.0f, 0f, Boid.FOCUSED_BOID_COLOR, false));
+
+        updatedBoids.add(new Boid((BORDER + 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
+                                  Boid.MAX_SPEED_METERS, 0, Boid.NPC_BOID_COLOR, false));
+        updatedBoids.add(new Boid((WIDTH - BORDER - 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
+                                      Boid.MAX_SPEED_METERS * -1.0f, 0, Boid.FOCUSED_BOID_COLOR, false));
     }
 
     private void initBoids(){

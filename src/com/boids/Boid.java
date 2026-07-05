@@ -5,27 +5,20 @@ import java.util.List;
 public class Boid {
 
     public static final float SIZE_METERS = 1f;
-    public static final float MIN_SPEED_METERS = 1.0f;
-    public static final float MAX_SPEED_METERS = 5.5f;
-    public static final float MAX_ACC_METERS = 2.8f;
+    public static final float MIN_SPEED_METERS = 3.2f;
+    public static final float MAX_SPEED_METERS = 9.5f;
+    public static final float MAX_ACC_METERS = 40.0f;
 
-    public static final int WIDTH = 20;
-    public static final float MAX_SPEED = 400f;
-    public static final float MIN_SPEED = 200f;
-    public static final float MAX_FORCE = 800f;
+    private static final float SEPARATION_INDEX = 0.5f;
+    private static final float SEPARATION_RADIUS = SIZE_METERS * 1.4f;
 
-    private static final float SEPARATION_INDEX = 0.7f;
-    private static final float SEPARATION_RADIUS = WIDTH * 1.8f;
+    private static final float COHESION_INDEX = 0.05f;
+    private static final float COHESION_RADIUS = SIZE_METERS * 5.0f;
 
-    private static final float COHESION_INDEX = 0.3f;
-    private static final float COHESION_RADIUS = 700f;
+    private static final float ALIGNMENT_INDEX = 0.1f;
+    private static final float ALIGNMENT_RADIUS = SIZE_METERS * 2.0f;
 
-    private static final float ALIGNMENT_INDEX = 0.3f;
-    private static final float ALIGNMENT_RADIUS = 70f;
-
-    //private static final float BORDER_OMITTING_INDEX = 0.3f;
-
-    private static final float FOV_ANGLE_COS = (float)Math.cos(Math.PI * 0.8);
+    private static final float FOV_ANGLE_COS = (float)Math.cos(Math.PI * 1.0);
 
     //public static final int NPC_BOID_COLOR = 0x3caea3;
     public static final int NPC_BOID_COLOR = 0xffffff;
@@ -57,32 +50,36 @@ public class Boid {
 	acc.mul(dt);
 
 	vel.add(acc);
-	//vel.clamp(MIN_SPEED, MAX_SPEED);
+	vel.clamp(MIN_SPEED_METERS, MAX_SPEED_METERS);
 
 	pos.add(PVectorUtil.mul(vel, dt));
 
 	acc.mul(0);
     }
 
-    public void stayInsideBoundaries(float boundaryXMin, float boundaryXMax,
+    private void stayInsideBoundaries(float boundaryXMin, float boundaryXMax,
                                      float boundaryYMin, float boundaryYMax) {
         if (this.pos.x < boundaryXMin) {
-            acc.add(new PVector(1f, 0));
+            acc.add(new PVector(0.3f, 0));
         } else if (this.pos.x > boundaryXMax) {
-            acc.add(new PVector(-1f, 0));
+            acc.add(new PVector(-0.3f, 0));
         }
 
         if (this.pos.y < boundaryYMin) {
-            acc.add(new PVector(0, 1f));
+            acc.add(new PVector(0, 0.3f));
         } else if (this.pos.y > boundaryYMax) {
-            acc.add(new PVector(0, -1f));
+            acc.add(new PVector(0, -0.3f));
         }
     }
 
-    public void updateAcc(List<Boid> boids){
+    public void updateAcc(List<Boid> boids,
+                          float boundaryXMin, float boundaryXMax,
+                          float boundaryYMin, float boundaryYMax){
 	PVector separation = new PVector();
 	PVector cohesion = new PVector();
 	PVector alignment = new PVector();
+
+        stayInsideBoundaries(boundaryXMin, boundaryXMax, boundaryYMin, boundaryYMax);
 
 	int separationCount = 0;
 	int cohesionCount = 0;
