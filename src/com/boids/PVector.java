@@ -18,6 +18,10 @@ public class PVector{
 	this.y += v.y;
     }
 
+    public PVector addNew(PVector v) {
+        return new PVector(this.x + v.x, this.y + v.y);
+    }
+
     public void subtract(PVector v){
 	this.x -= v.x;
 	this.y -= v.y;

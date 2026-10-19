@@ -19,6 +19,7 @@ max speed = 5.5m/s, 154px/s
 max acceleration = 4.5m/s 126px/s^2
 * TODO user meters instead of pixels
 * TODO allow pausing simulation
+* DONE fix line drawing (vertical line is not drawn correctly)
 * TODO debug drawing
  - [ ] draw line to each boid that we're testing against
 * TODO updateAcc should also use dt
