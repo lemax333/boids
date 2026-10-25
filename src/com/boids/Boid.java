@@ -9,9 +9,9 @@ public class Boid {
     public static final float MAX_SPEED = 9.f;
     public static final float MAX_FORCE = 9.f;
 
-    private static final float BOUNDARY_FORCE_INDEX = 1.f;
+    private static final float BOUNDARY_FORCE_INDEX = 1.5f;
 
-    private static final float SEPARATION_INDEX = 1.5f;
+    private static final float SEPARATION_INDEX = 2.f;
     private static final float SEPARATION_RADIUS = SIZE * 2.f;
 
     private static final float COHESION_INDEX = 0.5f;

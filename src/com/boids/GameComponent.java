@@ -18,7 +18,7 @@ public class GameComponent extends Canvas implements Runnable {
     public static final float WORLD_WIDTH = WINDOW_WIDTH / UNIT_TO_PIXELS;
     public static final float WORLD_HEIGHT = WINDOW_HEIGHT / UNIT_TO_PIXELS;
 
-    public static final int BORDER = 300;
+    public static final int BORDER = 150;
     public static final int BORDER_COLOR = 0x173f5f;
 
     public static final int NUMBER_OF_BOIDS = 500;//1_000_000;
@@ -47,8 +47,8 @@ public class GameComponent extends Canvas implements Runnable {
         int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
         renderer = new Renderer(pixels);
 
-        //initBoids();
-        initTestBoids();
+        initBoids();
+        //initTestBoids();
     }
 
     public void start(){
