@@ -6,8 +6,8 @@ public class Boid {
 
     public static final float SIZE = 1f;
     public static final float MIN_SPEED = 5.f;
-    public static final float MAX_SPEED = 7.f;
-    public static final float MAX_FORCE = 7.f;
+    public static final float MAX_SPEED = 9.f;
+    public static final float MAX_FORCE = 9.f;
 
     private static final float BOUNDARY_FORCE_INDEX = 1.f;
 
@@ -47,8 +47,6 @@ public class Boid {
 	acc.mul(dt);
 
 	vel.add(acc);
-        if (this.isFocused)
-            System.out.println(vel.magnitude());
 	vel.clamp(MIN_SPEED, MAX_SPEED);
 
 	pos.add(PVectorUtil.mul(vel, dt));

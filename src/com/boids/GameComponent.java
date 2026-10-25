@@ -18,7 +18,7 @@ public class GameComponent extends Canvas implements Runnable {
     public static final float WORLD_WIDTH = WINDOW_WIDTH / UNIT_TO_PIXELS;
     public static final float WORLD_HEIGHT = WINDOW_HEIGHT / UNIT_TO_PIXELS;
 
-    public static final int BORDER = 100;
+    public static final int BORDER = 300;
     public static final int BORDER_COLOR = 0x173f5f;
 
     public static final int NUMBER_OF_BOIDS = 500;//1_000_000;
@@ -47,8 +47,8 @@ public class GameComponent extends Canvas implements Runnable {
         int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
         renderer = new Renderer(pixels);
 
-        initBoids();
-        //initTestBoids();
+        //initBoids();
+        initTestBoids();
     }
 
     public void start(){
@@ -137,15 +137,15 @@ public class GameComponent extends Canvas implements Runnable {
     private void initTestBoids() {
         this.currentBoids = new ArrayList();
         this.updatedBoids = new ArrayList();
-        currentBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, WORLD_HEIGHT / 2,
-                                  Boid.MIN_SPEED, 0f, Boid.NPC_BOID_COLOR, false));
-        currentBoids.add(new Boid((WINDOW_WIDTH - BORDER - 20) / UNIT_TO_PIXELS, HEIGHT / 2,
-                                Boid.MIN_SPEED * -1.0f, 0f, Boid.FOCUSED_BOID_COLOR, false));
+        //currentBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, WORLD_HEIGHT / 2,
+//                                  Boid.MIN_SPEED, 0f, Boid.NPC_BOID_COLOR, false));
+        currentBoids.add(new Boid((WINDOW_WIDTH / 2) / UNIT_TO_PIXELS, -20.f,
+                                Boid.MIN_SPEED * -1.0f, 0f, Boid.FOCUSED_BOID_COLOR, true));
 
-        updatedBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, HEIGHT / 2,
-                                  Boid.MIN_SPEED, 0, Boid.NPC_BOID_COLOR, false));
-        updatedBoids.add(new Boid((WINDOW_WIDTH - BORDER - 20) / UNIT_TO_PIXELS, HEIGHT / 2,
-                                      Boid.MIN_SPEED * -1.0f, 0, Boid.FOCUSED_BOID_COLOR, false));
+        //updatedBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, HEIGHT / 2,
+//                                  Boid.MIN_SPEED, 0, Boid.NPC_BOID_COLOR, false));
+        updatedBoids.add(new Boid((WINDOW_WIDTH / 2) / UNIT_TO_PIXELS, -20.f,
+                                      Boid.MIN_SPEED * -1.0f, 0, Boid.FOCUSED_BOID_COLOR, true));
     }
 
     private void initBoids(){
