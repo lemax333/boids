@@ -10,17 +10,18 @@ import java.util.ArrayList;
 
 public class GameComponent extends Canvas implements Runnable {
 
-    public static final int WIDTH = 1200;
-    public static final int HEIGHT = 970;
+    public static final int WINDOW_WIDTH = 1200;
+    public static final int WINDOW_HEIGHT = 970;
 
-    public static final float METER_TO_PIXELS = 14.f;
-    public static final float WIDTH_METERS = WIDTH / METER_TO_PIXELS;
-    public static final float HEIGHT_METERS = HEIGHT / METER_TO_PIXELS;
+    public static final float UNIT_TO_PIXELS = 14.f;
 
-    public static final int BORDER = 50;
+    public static final float WORLD_WIDTH = WINDOW_WIDTH / UNIT_TO_PIXELS;
+    public static final float WORLD_HEIGHT = WINDOW_HEIGHT / UNIT_TO_PIXELS;
+
+    public static final int BORDER = 100;
     public static final int BORDER_COLOR = 0x173f5f;
 
-    public static final int NUMBER_OF_BOIDS = 100;//1_000_000;
+    public static final int NUMBER_OF_BOIDS = 500;//1_000_000;
     public static final int BG_COLOR = 0;
 
     private static final boolean limitFPS = true;
@@ -34,7 +35,7 @@ public class GameComponent extends Canvas implements Runnable {
     private List<Boid> updatedBoids;
 
     public GameComponent(){
-        Dimension size = new Dimension(WIDTH, HEIGHT);
+        Dimension size = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
         setSize(size);
         setPreferredSize(size);
         setMinimumSize(size);
@@ -42,7 +43,7 @@ public class GameComponent extends Canvas implements Runnable {
 
         setIgnoreRepaint(true);
 
-        img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        img = new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
         int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
         renderer = new Renderer(pixels);
 
@@ -69,7 +70,7 @@ public class GameComponent extends Canvas implements Runnable {
 
             if (limitFPS) {
                 if (secondsFromLastTick >= secondsPerTick){
-                    System.out.println("FPS: " + (int)(1 / secondsFromLastTick));
+                    //System.out.println("FPS: " + (int)(1 / secondsFromLastTick));
                     gameTick(secondsFromLastTick);
                     secondsFromLastTick = 0;
                 } else {
@@ -114,10 +115,10 @@ public class GameComponent extends Canvas implements Runnable {
             b.acc.y = b1.acc.y;
 
             b.updateAcc(currentBoids,
-                        BORDER / METER_TO_PIXELS, (WIDTH - BORDER) / METER_TO_PIXELS,
-                        BORDER / METER_TO_PIXELS, (HEIGHT - BORDER) / METER_TO_PIXELS);
+                        BORDER / UNIT_TO_PIXELS, (WINDOW_WIDTH - BORDER) / UNIT_TO_PIXELS,
+                        BORDER / UNIT_TO_PIXELS, (WINDOW_HEIGHT - BORDER) / UNIT_TO_PIXELS);
 
-            b.move(WIDTH - 1, HEIGHT - 1, (float)dt);
+            b.move((float)dt);
             renderer.drawBoid(b);
         }
 
@@ -136,15 +137,15 @@ public class GameComponent extends Canvas implements Runnable {
     private void initTestBoids() {
         this.currentBoids = new ArrayList();
         this.updatedBoids = new ArrayList();
-        currentBoids.add(new Boid((BORDER + 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
-                                  Boid.MAX_SPEED_METERS, 0f, Boid.NPC_BOID_COLOR, false));
-        currentBoids.add(new Boid((WIDTH - BORDER - 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
-                                Boid.MAX_SPEED_METERS * -1.0f, 0f, Boid.FOCUSED_BOID_COLOR, false));
+        currentBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, WORLD_HEIGHT / 2,
+                                  Boid.MIN_SPEED, 0f, Boid.NPC_BOID_COLOR, false));
+        currentBoids.add(new Boid((WINDOW_WIDTH - BORDER - 20) / UNIT_TO_PIXELS, HEIGHT / 2,
+                                Boid.MIN_SPEED * -1.0f, 0f, Boid.FOCUSED_BOID_COLOR, false));
 
-        updatedBoids.add(new Boid((BORDER + 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
-                                  Boid.MAX_SPEED_METERS, 0, Boid.NPC_BOID_COLOR, false));
-        updatedBoids.add(new Boid((WIDTH - BORDER - 20) / METER_TO_PIXELS, HEIGHT_METERS / 2,
-                                      Boid.MAX_SPEED_METERS * -1.0f, 0, Boid.FOCUSED_BOID_COLOR, false));
+        updatedBoids.add(new Boid((BORDER + 20) / UNIT_TO_PIXELS, HEIGHT / 2,
+                                  Boid.MIN_SPEED, 0, Boid.NPC_BOID_COLOR, false));
+        updatedBoids.add(new Boid((WINDOW_WIDTH - BORDER - 20) / UNIT_TO_PIXELS, HEIGHT / 2,
+                                      Boid.MIN_SPEED * -1.0f, 0, Boid.FOCUSED_BOID_COLOR, false));
     }
 
     private void initBoids(){
@@ -152,8 +153,8 @@ public class GameComponent extends Canvas implements Runnable {
         this.currentBoids = new ArrayList();
         this.updatedBoids = new ArrayList();
         for (int i = 0; i < NUMBER_OF_BOIDS; i++){
-            float x = r.nextInt((int)WIDTH_METERS);
-            float y = r.nextInt((int)HEIGHT_METERS);
+            float x = r.nextInt((int)WORLD_WIDTH);
+            float y = r.nextInt((int)WORLD_HEIGHT);
 
             boolean xPositiveDir = r.nextBoolean();
             boolean yPositiveDir = r.nextBoolean();
@@ -161,11 +162,10 @@ public class GameComponent extends Canvas implements Runnable {
             float deltaY = yPositiveDir ? r.nextFloat() : r.nextFloat() * -1;
             PVector velocity = new PVector(deltaX, deltaY);
             velocity.normalize();
-            velocity.mul(Boid.MIN_SPEED_METERS);
+            velocity.mul(Boid.MIN_SPEED);
 
             int color = Boid.NPC_BOID_COLOR;
             boolean isFocused = false;
-            // make the last one of different color
             if (i == NUMBER_OF_BOIDS - 1){
                 color = Boid.FOCUSED_BOID_COLOR;
                 isFocused = true;

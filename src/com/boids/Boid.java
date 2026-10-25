@@ -4,30 +4,30 @@ import java.util.List;
 
 public class Boid {
 
-    public static final float SIZE_METERS = 1f;
-    public static final float MIN_SPEED_METERS = 3.2f;
-    public static final float MAX_SPEED_METERS = 9.5f;
-    public static final float MAX_ACC_METERS = 40.0f;
+    public static final float SIZE = 1f;
+    public static final float MIN_SPEED = 5.f;
+    public static final float MAX_SPEED = 7.f;
+    public static final float MAX_FORCE = 7.f;
 
-    private static final float SEPARATION_INDEX = 0.5f;
-    private static final float SEPARATION_RADIUS = SIZE_METERS * 1.4f;
+    private static final float BOUNDARY_FORCE_INDEX = 1.f;
 
-    private static final float COHESION_INDEX = 0.05f;
-    private static final float COHESION_RADIUS = SIZE_METERS * 5.0f;
+    private static final float SEPARATION_INDEX = 1.5f;
+    private static final float SEPARATION_RADIUS = SIZE * 2.f;
 
-    private static final float ALIGNMENT_INDEX = 0.1f;
-    private static final float ALIGNMENT_RADIUS = SIZE_METERS * 2.0f;
+    private static final float COHESION_INDEX = 0.5f;
+    private static final float COHESION_RADIUS = SIZE * 5.0f;
+
+    private static final float ALIGNMENT_INDEX = 0.7f;
+    private static final float ALIGNMENT_RADIUS = SIZE * 2.0f;
 
     private static final float FOV_ANGLE_COS = (float)Math.cos(Math.PI * 1.0);
 
-    //public static final int NPC_BOID_COLOR = 0x3caea3;
     public static final int NPC_BOID_COLOR = 0xffffff;
     public static final int FOCUSED_BOID_COLOR = 0xed553b;
 
     public PVector pos;
     public PVector vel;
     public PVector acc;
-    public float size;
     public int color;
     public boolean isFocused;
 
@@ -38,48 +38,59 @@ public class Boid {
 	this.pos = new PVector(x, y);
 	this.vel = new PVector(velX, velY);
 	this.acc = new PVector();
-
-	this.size = SIZE_METERS;
 	this.color = color;
 
 	this.isFocused = isFocused;
     }
 
-    public void move(int boundaryX, int boundaryY, float dt){
-	acc.mul(MAX_ACC_METERS);
+    public void move(float dt){
 	acc.mul(dt);
 
 	vel.add(acc);
-	vel.clamp(MIN_SPEED_METERS, MAX_SPEED_METERS);
+        if (this.isFocused)
+            System.out.println(vel.magnitude());
+	vel.clamp(MIN_SPEED, MAX_SPEED);
 
 	pos.add(PVectorUtil.mul(vel, dt));
 
 	acc.mul(0);
     }
 
-    private void stayInsideBoundaries(float boundaryXMin, float boundaryXMax,
+    private PVector stayInsideBoundaries(float boundaryXMin, float boundaryXMax,
                                      float boundaryYMin, float boundaryYMax) {
+
+        PVector boundaryVector = new PVector(0.f, 0.f);
+        boolean boundaryForceApplied = false;
         if (this.pos.x < boundaryXMin) {
-            acc.add(new PVector(0.3f, 0));
+            boundaryVector.add(new PVector(1.f, 0));
+            boundaryForceApplied = true;
         } else if (this.pos.x > boundaryXMax) {
-            acc.add(new PVector(-0.3f, 0));
+            boundaryVector.add(new PVector(-1.f, 0));
+            boundaryForceApplied = true;
         }
 
         if (this.pos.y < boundaryYMin) {
-            acc.add(new PVector(0, 0.3f));
+            boundaryVector.add(new PVector(0, 1.f));
+            boundaryForceApplied = true;
         } else if (this.pos.y > boundaryYMax) {
-            acc.add(new PVector(0, -0.3f));
+            boundaryVector.add(new PVector(0, -1.f));
+            boundaryForceApplied = true;
         }
+
+        return boundaryForceApplied ? steerTowards(boundaryVector) : boundaryVector;
     }
 
     public void updateAcc(List<Boid> boids,
                           float boundaryXMin, float boundaryXMax,
                           float boundaryYMin, float boundaryYMax){
+        acc.mul(0);
 	PVector separation = new PVector();
 	PVector cohesion = new PVector();
 	PVector alignment = new PVector();
 
-        stayInsideBoundaries(boundaryXMin, boundaryXMax, boundaryYMin, boundaryYMax);
+        PVector boundaryForce = stayInsideBoundaries(boundaryXMin, boundaryXMax, boundaryYMin, boundaryYMax);
+        boundaryForce.mul(BOUNDARY_FORCE_INDEX);
+        acc.add(boundaryForce);
 
 	int separationCount = 0;
 	int cohesionCount = 0;
@@ -112,26 +123,32 @@ public class Boid {
 	}
 
 	if (separationCount > 0){
-	    separation.normalize();
-	    separation.mul(SEPARATION_INDEX);
+            separation = steerTowards(separation);
+            separation.mul(SEPARATION_INDEX);
 	    acc.add(separation);
 	}
 	if (cohesionCount > 0){
 	    cohesion.div(cohesionCount);
 	    cohesion.subtract(pos);
-
-	    cohesion.normalize();
-	    cohesion.mul(COHESION_INDEX);
+            cohesion = steerTowards(cohesion);
+            cohesion.mul(COHESION_INDEX);
 	    acc.add(cohesion);
 	}
 	if (alignmentCount > 0){
 	    alignment.div(alignmentCount);
 	    alignment.subtract(vel);
-
-	    alignment.normalize();
-	    alignment.mul(ALIGNMENT_INDEX);
+            alignment = steerTowards(alignment);
+            alignment.mul(ALIGNMENT_INDEX);
 	    acc.add(alignment);
 	}
+    }
+
+    private PVector steerTowards(PVector desiredVelocity) {
+        desiredVelocity.normalize();
+        desiredVelocity.mul(MAX_SPEED);
+        desiredVelocity.subtract(vel);
+        desiredVelocity.clamp(0.f, MAX_FORCE);
+        return desiredVelocity;
     }
 
     @Override

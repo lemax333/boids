@@ -1,10 +1,10 @@
 package com.boids;
 
-import static com.boids.GameComponent.WIDTH;
-import static com.boids.GameComponent.HEIGHT;
+import static com.boids.GameComponent.WINDOW_WIDTH;
+import static com.boids.GameComponent.WINDOW_HEIGHT;
 import static com.boids.GameComponent.BORDER;
 import static com.boids.GameComponent.BORDER_COLOR;
-import static com.boids.GameComponent.METER_TO_PIXELS;
+import static com.boids.GameComponent.UNIT_TO_PIXELS;
 import static com.boids.GameComponent.BG_COLOR;
 
 public class Renderer {
@@ -26,22 +26,19 @@ public class Renderer {
 
 
     public void drawBorders() {
-        for (int i = 0; i < WIDTH; i++) {
-            pixels[(BORDER*WIDTH) + i] = BORDER_COLOR;
-            pixels[((HEIGHT - BORDER) * WIDTH) + i] = BORDER_COLOR;
-        }
-        for (int i = 0; i < HEIGHT; i++){
-            pixels[(i*WIDTH) + BORDER] = BORDER_COLOR;
-            pixels[(i*WIDTH) + WIDTH - BORDER] = BORDER_COLOR;
-        }
+        drawLine(new ScreenPoint(BORDER, BORDER), new ScreenPoint(BORDER, WINDOW_HEIGHT - 1 - BORDER), BORDER_COLOR);
+        drawLine(new ScreenPoint(WINDOW_WIDTH - 1 - BORDER, BORDER), new ScreenPoint(WINDOW_WIDTH - 1 - BORDER, WINDOW_HEIGHT - 1 - BORDER), BORDER_COLOR);
+
+        drawLine(new ScreenPoint(BORDER, BORDER), new ScreenPoint(WINDOW_WIDTH - 1 - BORDER, BORDER), BORDER_COLOR);
+        drawLine(new ScreenPoint(BORDER, WINDOW_HEIGHT - 1 - BORDER), new ScreenPoint(WINDOW_WIDTH - 1 - BORDER, WINDOW_HEIGHT - 1 - BORDER), BORDER_COLOR);
     }
 
 
     public void drawBoid(Boid b){
         PVector direction = PVectorUtil.copy(b.vel);
         direction.normalize();
-        drawCircle(Math.round(b.pos.x * METER_TO_PIXELS), Math.round(b.pos.y * METER_TO_PIXELS),
-                   direction, Math.round(b.size * METER_TO_PIXELS), b.color);
+        drawCircle(Math.round(b.pos.x * UNIT_TO_PIXELS), Math.round(b.pos.y * UNIT_TO_PIXELS),
+                   direction, Math.round(Boid.SIZE * UNIT_TO_PIXELS), b.color);
     }
 
 
@@ -105,9 +102,9 @@ public class Renderer {
                     y += yIncr;
                     err -= 1.0f;
                 }
-                int index = x + y * WIDTH;
-                if (index > 0 && index < HEIGHT * WIDTH) {
-                    pixels[x + y * WIDTH] = color;
+                int index = x + y * WINDOW_WIDTH;
+                if (index > 0 && index < WINDOW_HEIGHT * WINDOW_WIDTH) {
+                    pixels[x + y * WINDOW_WIDTH] = color;
                 }
             }
         } else {
@@ -123,9 +120,9 @@ public class Renderer {
                     x += xIncr;
                     err -= 1.0f;
                 }
-                int index = x + y * WIDTH;
-                if (index > 0 && index < HEIGHT * WIDTH) {
-                    pixels[x + y * WIDTH] = color;
+                int index = x + y * WINDOW_WIDTH;
+                if (index > 0 && index < WINDOW_HEIGHT * WINDOW_WIDTH) {
+                    pixels[x + y * WINDOW_WIDTH] = color;
                 }
             }
         }
@@ -134,15 +131,15 @@ public class Renderer {
     private void blitImagePixels(int[] img, int x, int y, int width, int color){
         for (int i = 0; i < width; i++){
             int pY = i + y - width/2;
-            if (pY < 0 || pY >= HEIGHT)
+            if (pY < 0 || pY >= WINDOW_HEIGHT)
                 continue;
             for (int j = 0; j < width; j++){
                 int pX = j + x - width/2 ;
-                if (pX < 0 || pX >= WIDTH)
+                if (pX < 0 || pX >= WINDOW_WIDTH)
                     continue;
                 int c = img[j + i * width];
                 if (c == 0xFFFFFF)
-                    pixels[pX + pY * WIDTH] = color;
+                    pixels[pX + pY * WINDOW_WIDTH] = color;
             }
         }
     }
